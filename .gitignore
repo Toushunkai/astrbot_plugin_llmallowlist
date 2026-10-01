@@ -224,3 +224,5 @@ astrbot/
 message/
 platform/
 
+node_modules/
+node_modules.orig/
