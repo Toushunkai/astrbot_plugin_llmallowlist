@@ -39,13 +39,35 @@ class LLMAllowList(Star):
                 result[platform] = content
         return result
 
-    def _parse_allowlist(self):
-        pmap = self._parse_platform_map("allowlist")
+    def _parse_platform_sets(self, key):
+        """把 `平台名[逗号分隔内容]` 解析成 {平台: {条目, ...}}。"""
+        pmap = self._parse_platform_map(key)
         return {p: {u.strip() for u in v.split(",") if u.strip()} for p, v in pmap.items()}
+
+    def _parse_allowlist(self):
+        return self._parse_platform_sets("allowlist")
 
     def _in_allowlist(self, event: AstrMessageEvent) -> bool:
         allowlist = self._parse_allowlist()
         return str(event.get_sender_id()) in allowlist.get(event.get_platform_name(), set())
+
+    def _group_enabled(self, event: AstrMessageEvent) -> bool:
+        """本插件是否在该群启用（群名单）。
+
+        群名单留空 = 不限制，所有群都启用（向后兼容）；一旦填写，只有名单内列出的群
+        启用本插件，其余群完全不拦截（LLM 正常回复）。
+
+        Args:
+            event: 当前消息事件。
+
+        Returns:
+            该群启用本插件返回 True。
+        """
+        groups = self._parse_platform_sets("enable_groups")
+        if not groups:
+            return True
+        gid = str(event.message_obj.group_id or "")
+        return gid in groups.get(event.get_platform_name(), set())
 
     # ---------------------------------------------------------------- 管理员放行
     async def _fetch_group_admins(self, bot, group_id: str):
@@ -118,6 +140,9 @@ class LLMAllowList(Star):
     @filter.platform_adapter_type(filter.PlatformAdapterType.ALL)
     @filter.event_message_type(filter.EventMessageType.GROUP_MESSAGE)
     async def on_message(self, event: AstrMessageEvent):
+        if not self._group_enabled(event):
+            return
+
         if await self._is_admin_exempt(event):
             return
 
@@ -157,6 +182,8 @@ class LLMAllowList(Star):
             None。命中时通过 event.stop_event() 取消请求。
         """
         if event.get_message_type() != MessageType.GROUP_MESSAGE:
+            return
+        if not self._group_enabled(event):
             return
         if await self._is_exempt(event):
             return
