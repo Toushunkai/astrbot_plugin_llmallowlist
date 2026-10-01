@@ -1,0 +1,18 @@
+name: astrbot_plugin_llmallowlist
+version: 1.0.0
+display_name: 框架默认LLM回复白名单
+desc: 根据白名单控制框架默认 LLM 回复。白名单内用户正常触发 LLM，其余静默跳过。
+author: Akinana
+support_platforms:
+  - aiocqhttp
+  - qqofficial
+  - telegram
+  - wecom
+  - lark
+  - dingtalk
+  - discord
+  - slack
+  - kook
+  - webchat
+astrbot_version: ">=4.9.2"
+repo: https://github.com/Akinana22/astrbot_plugin_llmallowlist

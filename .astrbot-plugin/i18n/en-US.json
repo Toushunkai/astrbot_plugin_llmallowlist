@@ -1,0 +1,21 @@
+{
+  "metadata": {
+    "display_name": "Framework Default LLM Reply Allowlist",
+    "desc": "Controls framework default LLM replies based on an allowlist. Users in the allowlist trigger LLM normally, others are silently skipped or receive a custom reply.",
+    "short_desc": "Framework Default LLM Allowlist Filter"
+  },
+  "config": {
+    "admin_bypass": {
+      "description": "Admin Bypass",
+      "hint": "When enabled, AstrBot admins bypass the allowlist and always trigger the framework default LLM reply. Note: admin detection only works on aiocqhttp (OneBot)."
+    },
+    "allowlist": {
+      "description": "Allowlist",
+      "hint": "One line per platform, format: platform[UID1,UID2,...]. Users in the allowlist trigger the framework default LLM reply normally, others are silently skipped."
+    },
+    "reply_msg": {
+      "description": "Custom Reply",
+      "hint": "One line per platform, format: platform[reply]. Non-allowlisted users receive the platform-specific reply. Replies attempt quote reply first, then @ reply, then plain text."
+    }
+  }
+}

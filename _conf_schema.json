@@ -1,0 +1,20 @@
+{
+  "admin_bypass": {
+    "description": "管理员自动放行",
+    "type": "bool",
+    "hint": "开启后，AstrBot 管理员的消息不受白名单限制，直接触发框架默认 LLM 回复。注意：管理员检测仅 aiocqhttp（OneBot）平台有效。",
+    "default": false
+  },
+  "allowlist": {
+    "description": "白名单",
+    "type": "text",
+    "hint": "按行填写，格式：平台名[UID1,UID2,...]。白名单内用户正常触发框架默认 LLM 回复，其余用户静默跳过。",
+    "default": "aiocqhttp[]\nqqofficial[]\nqqofficial_webhook[]\ntelegram[]\nlark[]\ndiscord[]\nkook[]"
+  },
+  "reply_msg": {
+    "description": "自定义回复",
+    "type": "text",
+    "hint": "按行填写，格式：平台名[回复内容]。不在白名单的用户收到对应平台的回复。回复时依次尝试引用回复、@回复、普通回复。",
+    "default": "aiocqhttp[]\nqqofficial[]\nqqofficial_webhook[]\ntelegram[]\nlark[]\ndiscord[]\nkook[]"
+  }
+}
