@@ -10,7 +10,7 @@ AstrBot 插件。根据白名单控制框架默认 LLM 回复，白名单内用�
 
 | 配置 | 说明 | 默认值 |
 |------|------|--------|
-| `admin_bypass` | 管理员自动放行 | `false` |
+| `admin_bypass` | 管理员自动放行（全局管理员 + 群主/群管理员） | `true` |
 | `allowlist` | 白名单 | 7 个平台空 `[]` |
 | `reply_msg` | 自定义回复 | 7 个平台空 `[]` |
 
@@ -37,7 +37,10 @@ telegram[987654321]
 ### 注意事项
 
 - 白名单为空时，所有用户的 LLM 回复均被静默跳过。
-- 管理员自动放行依赖平台的管理员检测，目前仅 aiocqhttp（OneBot）支持。
+- 管理员自动放行（默认开）包含两类：
+  - **AstrBot 全局管理员**：`admins_id` 里的号，`event.role == "admin"`，全平台有效；
+  - **群主 / 群管理员**：依赖 OneBot 的 `get_group_member_list`，仅 aiocqhttp 平台有效（结果缓存 1 小时）。
+  关闭 `admin_bypass` 后两类都不放行，严格按白名单。
 - `reply_msg` 的自定义回复依次尝试：引用回复 → @回复 → 普通回复。
 - 配置修改后需重新加载插件生效。
 
@@ -45,6 +48,7 @@ telegram[987654321]
 
 - 白名单控制：仅配置中的 UID 可触发框架默认 LLM 回复
 - 自定义回复：非白名单用户可按平台配置自定义回复内容
+- 管理员放行：AstrBot 全局管理员 + 群主/群管理员无视白名单（`admin_bypass`，默认开）
 - 全平台兼容：覆盖 7 个主流群聊平台
 - 兜底拦截：`on_llm_request` hook 取消非白名单发送者的**一切** LLM 请求（含内置/其他插件自发的请求）
 
@@ -52,7 +56,7 @@ telegram[987654321]
 
 ```
 群消息 → llm_allowlist 插件
-├─ admin_bypass 启用 且 sender 是管理员 → return，LLM 正常回复
+├─ admin_bypass 开 且 sender 是全局管理员 / 群主 / 群管理员 → return，LLM 正常回复
 ├─ sender_id 在白名单中 → return，LLM 正常回复
 └─ 不在白名单中
     ├─ 该平台有 reply_msg → 依次尝试引用/@/普通回复 → block LLM
@@ -95,6 +99,7 @@ if await call_event_hook(event, EventType.OnLLMRequestEvent, req):
 
 | 版本 | 说明 |
 |------|------|
+| 1.0.2 | 管理员放行扩展到**群主 / 群管理员**（OneBot `get_group_member_list`）与 **AstrBot 全局管理员**（`event.role`，全平台），`admin_bypass` 默认改为 `true` |
 | 1.0.1 | 新增 `on_llm_request` 兜底 hook，修复「非白名单用户只 @ 机器人 / 只发唤醒词仍能得到 LLM 回复」 |
 | 1.0.0 | 首个版本：按平台白名单控制框架默认 LLM 回复 + 自定义回复 + 管理员放行 |
 

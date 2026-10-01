@@ -2,8 +2,8 @@
   "admin_bypass": {
     "description": "管理员自动放行",
     "type": "bool",
-    "hint": "开启后，AstrBot 管理员的消息不受白名单限制，直接触发框架默认 LLM 回复。注意：管理员检测仅 aiocqhttp（OneBot）平台有效。",
-    "default": false
+    "hint": "开启后，管理员的消息不受白名单限制，直接触发框架默认 LLM 回复。包含两类：① AstrBot 全局管理员（配置里的 admins_id，全平台有效）；② 群主/群管理员（依赖 OneBot 的 get_group_member_list，仅 aiocqhttp 平台有效）。关闭后严格按白名单，两类都拦截。",
+    "default": true
   },
   "allowlist": {
     "description": "白名单",

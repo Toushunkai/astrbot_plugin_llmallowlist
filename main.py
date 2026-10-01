@@ -58,10 +58,29 @@ class LLMAllowList(Star):
         except Exception as e:
             logger.debug("[llm_allowlist] admin_fetch | 群%s 获取失败: %s", group_id, e)
 
-    async def _is_group_admin(self, event: AstrMessageEvent) -> bool:
-        """admin_bypass 打开时，判断发送者是否本群管理员/群主（仅 aiocqhttp 有效）。"""
-        if not self.config.get("admin_bypass", False):
+    async def _is_admin_exempt(self, event: AstrMessageEvent) -> bool:
+        """管理员放行：AstrBot 全局管理员（全平台）+ 群主/群管理员（仅 aiocqhttp）。
+
+        admin_bypass 关闭时两者都不放行（严格按白名单）。
+
+        Args:
+            event: 当前消息事件。
+
+        Returns:
+            命中任一放行规则返回 True。
+        """
+        if not self.config.get("admin_bypass", True):
             return False
+
+        # 1) AstrBot 全局管理员：event.role 由 WakingCheckStage 按 admins_id 设置，全平台可用
+        if event.is_admin():
+            logger.debug(
+                "[llm_allowlist] admin_check | 全局管理员 sender_id=%s",
+                event.get_sender_id(),
+            )
+            return True
+
+        # 2) 群主/群管理员：依赖 OneBot 的 get_group_member_list，仅 aiocqhttp 有效
         gid = str(event.message_obj.group_id or "")
         evt_bot = getattr(event, "bot", None)
         if not gid or not evt_bot:
@@ -78,8 +97,8 @@ class LLMAllowList(Star):
         return str(event.get_sender_id()) in admins
 
     async def _is_exempt(self, event: AstrMessageEvent) -> bool:
-        """白名单内，或被管理员放行。"""
-        return self._in_allowlist(event) or await self._is_group_admin(event)
+        """白名单内，或被管理员放行（全局管理员 / 群主 / 群管理员）。"""
+        return self._in_allowlist(event) or await self._is_admin_exempt(event)
 
     # ---------------------------------------------------------------- 自定义回复
     async def _send_reply(self, event: AstrMessageEvent, text: str):
@@ -99,7 +118,7 @@ class LLMAllowList(Star):
     @filter.platform_adapter_type(filter.PlatformAdapterType.ALL)
     @filter.event_message_type(filter.EventMessageType.GROUP_MESSAGE)
     async def on_message(self, event: AstrMessageEvent):
-        if await self._is_group_admin(event):
+        if await self._is_admin_exempt(event):
             return
 
         if self._in_allowlist(event):
