@@ -22,5 +22,35 @@
     "type": "text",
     "hint": "按行填写，格式：平台名[回复内容]。不在白名单的用户收到对应平台的回复。回复时依次尝试引用回复、@回复、普通回复。",
     "default": "aiocqhttp[]\nqqofficial[]\nqqofficial_webhook[]\ntelegram[]\nlark[]\ndiscord[]\nkook[]"
+  },
+  "vent_enabled": {
+    "description": "放风功能",
+    "type": "bool",
+    "hint": "开启后，群管理/管理员可在群里发「放风5分钟」，这段时间内本群所有人的 LLM 对话一律放行（等价于全群临时进白名单），到期自动收回；也可发「收风」提前结束、「放风状态」查看剩余时间。关闭后完全忽略放风指令。",
+    "default": true
+  },
+  "vent_allowlist_can_vent": {
+    "description": "允许白名单用户放风",
+    "type": "bool",
+    "hint": "关闭（默认）时只有管理员（AstrBot 全局管理员 + 群主/群管理员）能发「放风」；开启后白名单里的普通用户也可以。收风同样按这个权限判断。",
+    "default": false
+  },
+  "vent_default_minutes": {
+    "description": "放风默认时长（分钟）",
+    "type": "int",
+    "hint": "只说「放风」不带时长时使用的默认值。",
+    "default": 5
+  },
+  "vent_max_minutes": {
+    "description": "单次放风时长上限（分钟）",
+    "type": "int",
+    "hint": "超过上限的时长会被封顶，防止一次放风开太久。填 0 表示不限制。",
+    "default": 120
+  },
+  "vent_expire_notify": {
+    "description": "放风到期提醒",
+    "type": "bool",
+    "hint": "开启后，放风时间走完时会在群里提示一句「放风结束」；关闭则静默收回（开始/收风/查状态这些「你问了才回」的提示不受影响）。",
+    "default": true
   }
 }

@@ -1,13 +1,17 @@
 {
   "metadata": {
     "display_name": "Framework Default LLM Reply Allowlist",
-    "desc": "Controls framework default LLM replies based on an allowlist. Users in the allowlist trigger LLM normally, others are silently skipped or receive a custom reply.",
+    "desc": "Controls framework default LLM replies based on an allowlist. Users in the allowlist trigger LLM normally, others are silently skipped or receive a custom reply. Also supports a timed 'open window' for the whole group.",
     "short_desc": "Framework Default LLM Allowlist Filter"
   },
   "config": {
+    "enable_groups": {
+      "description": "Active Groups",
+      "hint": "One line per platform, format: platform[group1,group2,...]. Only groups in the list activate this plugin; other groups are untouched (LLM replies normally). Empty = all groups."
+    },
     "admin_bypass": {
       "description": "Admin Bypass",
-      "hint": "When enabled, AstrBot admins bypass the allowlist and always trigger the framework default LLM reply. Note: admin detection only works on aiocqhttp (OneBot)."
+      "hint": "When enabled, admins bypass the allowlist and always trigger the framework default LLM reply. Covers AstrBot global admins (all platforms) and group owner/admins (aiocqhttp only)."
     },
     "allowlist": {
       "description": "Allowlist",
@@ -16,6 +20,26 @@
     "reply_msg": {
       "description": "Custom Reply",
       "hint": "One line per platform, format: platform[reply]. Non-allowlisted users receive the platform-specific reply. Replies attempt quote reply first, then @ reply, then plain text."
+    },
+    "vent_enabled": {
+      "description": "Open Window",
+      "hint": "When enabled, admins can send '放风5分钟' in a group: for that long, everyone in the group bypasses the allowlist. It closes automatically on expiry, '收风' closes it early and '放风状态' shows the remaining time."
+    },
+    "vent_allowlist_can_vent": {
+      "description": "Allowlisted Users Can Open A Window",
+      "hint": "Off by default: only admins (AstrBot global admins and group owner/admins) may open or close a window. When on, allowlisted regular users may too."
+    },
+    "vent_default_minutes": {
+      "description": "Default Window (minutes)",
+      "hint": "Duration used when the command carries no duration."
+    },
+    "vent_max_minutes": {
+      "description": "Max Window (minutes)",
+      "hint": "Longer durations are capped to this value. 0 = no cap."
+    },
+    "vent_expire_notify": {
+      "description": "Expiry Notice",
+      "hint": "When enabled, the group gets a 'window closed' notice when the timer runs out; when disabled the window closes silently (direct replies to the command are unaffected)."
     }
   }
 }
